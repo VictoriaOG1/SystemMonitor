@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/settings1.png</file>
+    <file>icons/history.png</file>
+    <file>icons/menu.png</file>
+    <file>icons/check-box-empty.png</file>
+    <file>icons/minus.png</file>
+    <file>icons/settings.png</file>
+    <file>icons/close.png</file>
+    <file>icons/cpu-tower (1).png</file>
+    <file>icons/drive.png</file>
+    <file>icons/engineering.png</file>
+    <file>icons/ram.png</file>
+    <file>icons/wifi-signal.png</file>
+  </qresource>
+</RCC>
