@@ -7,18 +7,17 @@ from GUICodigo import *
 from qt_material import *
 from PyQt5.QtCore import *
 import pyqtgraph as pg
-from pyqtgraph.exporters import Exporter, SVGExporter
-from PIL import Image
-from pyqtgraph.Qt import QtGui
-import numpy as np
+from pyqtgraph.exporters import Exporter
+
 
 class CPUMonitorThread(QThread):
     cpu_data_updated = pyqtSignal(list)
 
     def run(self):
         while True:
-            cpu_usage = psutil.cpu_percent() 
-            self.cpu_data_updated.emit([cpu_usage])
+            cpu_usage = psutil.cpu_percent(percpu=1)
+            cpu_usage_core = max(cpu_usage) 
+            self.cpu_data_updated.emit([cpu_usage_core])
             self.msleep(1000)
 
 class MemoryMonitorThread(QThread):
@@ -35,9 +34,10 @@ class StorageMonitorThread(QThread):
 
     def run(self):
         while True:
-            disk_usage = psutil.disk_usage('/')
             disk_io = psutil.disk_io_counters()
-            self.storage_data_updated.emit([disk_usage.percent, disk_io.write_bytes/10000000, disk_io.read_bytes /10000000])
+            write_bytes = disk_io.write_bytes/(1024*1024)
+            read_bytes = disk_io.read_bytes/(1024*1024)
+            self.storage_data_updated.emit([write_bytes, read_bytes])
             self.msleep(1000)
 
 class ProcessMonitorThread(QThread):
@@ -65,8 +65,8 @@ class NetworkMonitorThread(QThread):
     def run(self):
         while True:
             net_io = psutil.net_io_counters()
-            upload_speed = float(net_io.bytes_sent / 1024)
-            download_speed = float(net_io.bytes_recv / 1024)
+            upload_speed = (float(net_io.bytes_sent))/(1024*1024)
+            download_speed = (float(net_io.bytes_recv))/(1024*1024)
             self.update_stats.emit([upload_speed, download_speed])
             self.msleep(1000)  # Delay in milliseconds
 
@@ -122,11 +122,9 @@ class MainWindow(QMainWindow):
         self.network_monitor_thread.update_stats.connect(self.update_Net_data)
         self.network_monitor_thread.start()
 
-        # Update widgets every second
-        self.timer = QTimer()
-        self.timer.setInterval(1000)
-        self.timer.timeout.connect(self.update_widgets)
-        self.timer.start()
+        self.process_monitor_thread = ProcessMonitorThread()
+        self.process_monitor_thread.process_data_updated.connect(self.update_Pro_data)
+        self.process_monitor_thread.start()
 
         #Show main window
         self.show()
@@ -339,42 +337,31 @@ class MainWindow(QMainWindow):
         self.ui.ramPerGraph.rpb_setValue(data[0])
 
     def update_Disk_data(self, data):
-        if (data[0]<59000 and data[1]<59000):
-            self.disk_write_data.append(data[0])
-            self.disk_read_data.append(data[1])
-            self.disk_write_curve.setData(self.disk_write_data)
-            self.disk_read_curve.setData(self.disk_read_data)
+        self.disk_write_data.append(data[0])
+        self.disk_read_data.append(data[1])
+        self.disk_write_curve.setData(self.disk_write_data)
+        self.disk_read_curve.setData(self.disk_read_data)
 
     def update_Net_data(self, data):
-        if (data[0]<59000 and data[1]<59000):
-            self.net_upload_data.append(data[0])
-            self.net_download_data.append(data[1])
-            self.net_upload_curve.setData(self.net_upload_data)
-            self.net_download_curve.setData(self.net_download_data)
-            self.ui.netUpValue.setText(str("{:.2f}".format(data[0]) + ' Mbps'))
-            self.ui.netDownValue.setText(str("{:.2f}".format(data[1]) + ' Mbps'))
-    
+        self.net_upload_data.append(data[0])
+        self.net_download_data.append(data[1])
+        self.net_upload_curve.setData(self.net_upload_data)
+        self.net_download_curve.setData(self.net_download_data)
+        self.ui.netUpValue.setText(str("{:.2f}".format(data[0]) + ' Mbps'))
+        self.ui.netDownValue.setText(str("{:.2f}".format(data[1]) + ' Mbps'))
 
-    def update_widgets(self):
-        # Update CPU usage
-        cpu_percent = psutil.cpu_percent()
-        self.update_CPU_data([cpu_percent])
-
-        # Update memory usage
-        mem_percent = psutil.virtual_memory().percent
-        self.update_RAM_data([mem_percent])
-
-        # Update disk I/O counters
-        disk_io_counters = psutil.disk_io_counters()
-        write_bytes = disk_io_counters.write_bytes/(1024*1024)
-        read_bytes = disk_io_counters.read_bytes/(1024*1024)
-        self.update_Disk_data([write_bytes, read_bytes])
-
-        #Update network data
-        net_io1 = psutil.net_io_counters()
-        upload_speed1 = (float(net_io1.bytes_sent)*8)/1000000
-        download_speed1 = (float(net_io1.bytes_recv)*8)/1000000
-        self.update_Net_data([upload_speed1, download_speed1])
+    def update_Pro_data(self, data):
+        # Limpia la tabla antes de actualizarla
+        self.ui.pro_table.clearContents()
+        self.ui.pro_table.setRowCount(0)
+        self.ui.pro_table.setRowCount(len(data))
+        for i, (name, pid, status, memory_usage, cpu_usage) in enumerate(data):
+            self.ui.pro_table.setItem(i, 0, QTableWidgetItem(name))
+            self.ui.pro_table.setItem(i, 1, QTableWidgetItem(pid))
+            self.ui.pro_table.setItem(i, 2, QTableWidgetItem(status))
+            self.ui.pro_table.setItem(i, 3, QTableWidgetItem(memory_usage))
+            self.ui.pro_table.setItem(i, 4, QTableWidgetItem(cpu_usage))
+        self.ui.pro_table.resizeColumnsToContents()
 
     
     def CPU_SAVE_clicked(self):
