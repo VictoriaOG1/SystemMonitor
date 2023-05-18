@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         #Set icon, title and a fixed size to main window
         self.setWindowIcon(QIcon(":/icons/icons/settings1.png"))
         self.setWindowTitle("System Monitor by AOCZ")
-        self.setFixedSize(900,600)
+        self.setFixedSize(1400,1000)
 
         #CPU button connect to CPU page 
         self.ui.cpuButton.clicked.connect(lambda: self.ui.stackedWidget.setCurrentWidget(self.ui.cpu))
@@ -384,33 +384,7 @@ class MainWindow(QMainWindow):
         exporter.export(filename)
         
         # Load the image using QImage
-        qimage = QImage(filename)
-
-       # Convert QImage to numpy array
-        width = qimage.width()
-        height = qimage.height()
-        arr = np.zeros((height, width, 4), dtype=np.uint8)
-        for y in range(height):
-            for x in range(width):
-                color = QColor(qimage.pixel(x, y))
-                arr[y, x, 0] = color.red()
-                arr[y, x, 1] = color.green()
-                arr[y, x, 2] = color.blue()
-                arr[y, x, 3] = color.alpha()
-
-        # Rotate the image by 90 degrees counterclockwise
-        arr = np.rot90(arr, 3)
-
-        # Create an ImageItem
-        image_item = pg.ImageItem()
-        image_item.setImage(arr)
-
-        # Clear the plot before adding the new image
-        self.ui.cpuHisGraph.clear()
-
-        # Add the ImageItem to the plot
-        self.ui.cpuHisGraph.addItem(image_item)
-        
+        qimage = QImage(filename)        
     
     def RAM_SAVE_clicked(self):
         filename = 'plotRAM.svg'
@@ -419,34 +393,6 @@ class MainWindow(QMainWindow):
 
         # Load the image using QImage
         qimage = QImage(filename)
-
-       # Convert QImage to numpy array
-        width = qimage.width()
-        height = qimage.height()
-        arr = np.zeros((height, width, 4), dtype=np.uint8)
-        for y in range(height):
-            for x in range(width):
-                color = QColor(qimage.pixel(x, y))
-                arr[y, x, 0] = color.red()
-                arr[y, x, 1] = color.green()
-                arr[y, x, 2] = color.blue()
-                arr[y, x, 3] = color.alpha()
-
-        # Rotate the image by 90 degrees counterclockwise
-        arr = np.rot90(arr, 3)
-
-        # Create an ImageItem
-        image_item = pg.ImageItem()
-        image_item.setImage(arr)
-
-        # Clear the plot before adding the new image
-        self.ui.ramHisGraph.clear()
-
-        # Add the ImageItem to the plot
-        self.ui.ramHisGraph.addItem(image_item)
-
-
-
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)
