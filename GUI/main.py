@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         #Set icon, title and a fixed size to main window
         self.setWindowIcon(QIcon(":/icons/icons/settings1.png"))
         self.setWindowTitle("System Monitor by AOCZ")
-        self.setFixedSize(1400,1000)
+        self.setFixedSize(850,600)
 
         #CPU button connect to CPU page 
         self.ui.cpuButton.clicked.connect(lambda: self.ui.stackedWidget.setCurrentWidget(self.ui.cpu))
@@ -376,23 +376,31 @@ class MainWindow(QMainWindow):
         download_speed1 = (float(net_io1.bytes_recv)*8)/1000000
         self.update_Net_data([upload_speed1, download_speed1])
 
-        
     
     def CPU_SAVE_clicked(self):
         filename = 'plotCPU.png'
         exporter = pg.exporters.ImageExporter(self.ui.cpuGraph.plotItem)
         exporter.export(filename)
+
+        image = QImage(filename)
+        scaled_image = image.scaled(600,250)
         
-        # Load the image using QImage
-        qimage = QImage(filename)        
+        # Load the image using QPixmap
+        pixmap = QPixmap.fromImage(scaled_image)
+        self.ui.imageCPUGraph.setPixmap(pixmap)   
     
     def RAM_SAVE_clicked(self):
-        filename = 'plotRAM.svg'
-        exporter = SVGExporter(self.ui.ramGraph.plotItem)
+        filename = 'plotRAM.png'
+        exporter = pg.exporters.ImageExporter(self.ui.ramGraph.plotItem)
         exporter.export(filename)
 
-        # Load the image using QImage
-        qimage = QImage(filename)
+        image = QImage(filename)
+        scaled_image = image.scaled(600,250)
+        
+        # Load the image using QPixmap
+        pixmap = QPixmap.fromImage(scaled_image)
+        self.ui.imageRAMGraph.setPixmap(pixmap)     
+        
     
 if __name__ == '__main__':
     app = QApplication(sys.argv)
