@@ -21,7 +21,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(778, 516)
+        MainWindow.resize(844, 516)
         MainWindow.setStyleSheet(u"*{\n"
 "	border:none;\n"
 "}")
@@ -69,7 +69,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.statsContainer.sizePolicy().hasHeightForWidth())
         self.statsContainer.setSizePolicy(sizePolicy)
-        self.statsContainer.setMinimumSize(QSize(550, 1))
+        self.statsContainer.setMinimumSize(QSize(625, 1))
         self.statsContainer.setFont(font)
         self.statsContainer.setFrameShape(QFrame.StyledPanel)
         self.statsContainer.setFrameShadow(QFrame.Raised)
