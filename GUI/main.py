@@ -15,7 +15,7 @@ class CPUMonitorThread(QThread):
 
     def run(self):
         while True:
-            cpu_usage = psutil.cpu_percent(percpu=1)
+            cpu_usage = psutil.cpu_percent()
             cpu_usage_core = max(cpu_usage) 
             self.cpu_data_updated.emit([cpu_usage_core])
             self.msleep(1000)
@@ -261,7 +261,7 @@ class MainWindow(QMainWindow):
         self.disk_read_curve = self.ui.diskGraph.plot(pen=pg.mkPen(color='#219693', width=3))
         
         # Add legend
-        legend = pg.LegendItem(offset=(70, 30))
+        legend = pg.LegendItem(offset=(480, 200))
         legend.setParentItem(self.ui.diskGraph.graphicsItem())
         legend.addItem(self.disk_write_curve, 'Write')
         legend.addItem(self.disk_read_curve, 'Read')
@@ -312,7 +312,7 @@ class MainWindow(QMainWindow):
         self.net_download_curve = self.ui.netGraph.plot(pen=pg.mkPen(color='#4CAF91', width=5))
         
         # Add legend
-        legend = pg.LegendItem(offset=(70, 30))
+        legend = pg.LegendItem(offset=(480, 200))
         legend.setParentItem(self.ui.netGraph.graphicsItem())
         legend.addItem(self.net_upload_curve, 'Upload')
         legend.addItem(self.net_download_curve, 'Download')
