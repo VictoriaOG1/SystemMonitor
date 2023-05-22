@@ -15,7 +15,7 @@ class CPUMonitorThread(QThread):
 
     def run(self):
         while True:
-            cpu_usage = psutil.cpu_percent()
+            cpu_usage = psutil.cpu_percent(percpu=True)
             cpu_usage_core = max(cpu_usage) 
             self.cpu_data_updated.emit([cpu_usage_core])
             self.msleep(1000)
